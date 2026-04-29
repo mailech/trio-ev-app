@@ -1,13 +1,20 @@
-import { motion } from 'framer-motion';
+import { motion, useScroll, useTransform } from 'framer-motion';
 import { BatteryCharging, Zap, MapPin } from 'lucide-react';
+import { useRef } from 'react';
 
 export function HeroSection() {
     const text = "THE ROAD AHEAD".split(" ");
+    const ref = useRef(null);
+    const { scrollYProgress } = useScroll({
+        target: ref,
+        offset: ["start start", "end start"]
+    });
+    const yBg = useTransform(scrollYProgress, [0, 1], ["0%", "40%"]);
 
     return (
-        <section className="relative h-screen w-full flex flex-col justify-center overflow-hidden">
-            {/* Background Video */}
-            <div className="absolute inset-0 z-0">
+        <section ref={ref} className="relative h-screen w-full flex flex-col justify-center overflow-hidden">
+            {/* Background Video with Parallax */}
+            <motion.div style={{ y: yBg }} className="absolute inset-0 z-0 origin-top h-[120%] -top-[10%]">
                 <video
                     autoPlay
                     loop
@@ -20,7 +27,7 @@ export function HeroSection() {
                 {/* Gradient overlay for readability */}
                 <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
                 <div className="absolute inset-0 bg-gradient-to-r from-background/80 via-background/40 to-transparent" />
-            </div>
+            </motion.div>
 
             {/* Glowing ambient orb behind text */}
             <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-accent/10 rounded-full blur-[120px] pointer-events-none z-0" />

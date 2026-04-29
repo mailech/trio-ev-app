@@ -39,21 +39,24 @@ export function ServicesSection() {
                 {services.map((service, i) => (
                     <motion.div
                         key={service.title}
-                        initial={{ opacity: 0, y: 30 }}
-                        whileInView={{ opacity: 1, y: 0 }}
+                        initial={{ opacity: 0, y: 50, scale: 0.95 }}
+                        whileInView={{ opacity: 1, y: 0, scale: 1 }}
                         viewport={{ once: true, margin: "-50px" }}
-                        transition={{ delay: i * 0.2 }}
-                        whileHover={{ y: -10 }}
-                        className="bg-secondary/40 backdrop-blur-sm border border-secondary p-8 rounded-3xl group relative overflow-hidden"
+                        transition={{ delay: i * 0.2, duration: 0.6, ease: "easeOut" }}
+                        whileHover={{ y: -15, scale: 1.02 }}
+                        className="bg-secondary/40 backdrop-blur-md border border-white/5 p-8 rounded-3xl group relative overflow-visible shadow-lg transition-all duration-500"
                     >
-                        {/* Hover Glow */}
-                        <div className="absolute inset-0 bg-gradient-to-b from-accent/0 to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                        {/* Hover Glowing Orb Behind Card */}
+                        <div className="absolute inset-0 bg-accent/20 blur-[80px] opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10 rounded-3xl pointer-events-none" />
+
+                        {/* Internal Hover Glow */}
+                        <div className="absolute inset-0 bg-gradient-to-b from-accent/0 to-accent/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-3xl" />
                         
-                        <div className="w-14 h-14 rounded-2xl bg-secondary flex items-center justify-center mb-6 text-accent group-hover:scale-110 transition-transform duration-500">
+                        <div className="w-14 h-14 rounded-2xl bg-secondary border border-white/5 flex items-center justify-center mb-6 text-accent group-hover:scale-110 group-hover:bg-accent group-hover:text-background transition-all duration-500 shadow-md">
                             <service.icon size={28} />
                         </div>
                         
-                        <h3 className="text-2xl font-heading font-bold mb-3 text-textPrimary">{service.title}</h3>
+                        <h3 className="text-2xl font-heading font-bold mb-3 text-textPrimary group-hover:text-accent transition-colors duration-300">{service.title}</h3>
                         <p className="text-textPrimary/70 mb-8 font-sans">{service.description}</p>
                         
                         <ul className="space-y-3">
