@@ -5,6 +5,7 @@ import { deleteKey, newKey, publicUrl, putBuffer } from '@/lib/storage';
 import { badRequest, notFound } from '@/utils/http-error';
 
 const VARIANTS = [1600, 800, 400] as const;
+const MAX_BYTES = 8 * 1024 * 1024;
 
 interface UploadInput {
     buffer: Buffer;
@@ -29,24 +30,23 @@ const mediaSelect = {
     createdAt: true,
 } satisfies Prisma.MediaSelect;
 
+type RawMedia = Prisma.MediaGetPayload<{ select: typeof mediaSelect }>;
+
 export async function uploadImage(input: UploadInput) {
     if (!input.mimetype.startsWith('image/')) {
-        throw badRequest('Only image uploads supported in this version');
+        throw badRequest('Only image uploads supported');
     }
-    if (input.buffer.length > 8 * 1024 * 1024) {
+    if (input.buffer.length > MAX_BYTES) {
         throw badRequest('Image larger than 8 MB');
     }
 
     const meta = await sharp(input.buffer).metadata();
-    const ext = '.webp';
     const baseName = input.originalName.replace(/\.[a-z0-9]+$/i, '') || 'image';
+    const ext = '.webp';
 
     const originalKey = newKey(`${baseName}${ext}`);
-    const originalBuf = await sharp(input.buffer)
-        .rotate()
-        .webp({ quality: 90 })
-        .toBuffer();
-    await putBuffer(originalKey, originalBuf);
+    const originalBuf = await sharp(input.buffer).rotate().webp({ quality: 90 }).toBuffer();
+    await putBuffer(originalKey, originalBuf, 'image/webp');
 
     const variants: { key: string; width: number | null; height: number | null }[] = [];
     for (const w of VARIANTS) {
@@ -57,7 +57,7 @@ export async function uploadImage(input: UploadInput) {
             .resize({ width: w, withoutEnlargement: true })
             .webp({ quality: 82 })
             .toBuffer();
-        await putBuffer(key, out);
+        await putBuffer(key, out, 'image/webp');
         const m = await sharp(out).metadata();
         variants.push({ key, width: m.width ?? null, height: m.height ?? null });
     }
@@ -68,7 +68,7 @@ export async function uploadImage(input: UploadInput) {
         .resize({ width: 240, height: 240, fit: 'cover' })
         .webp({ quality: 80 })
         .toBuffer();
-    await putBuffer(thumbKey, thumbBuf);
+    await putBuffer(thumbKey, thumbBuf, 'image/webp');
 
     return prisma.media.create({
         data: {
@@ -108,8 +108,9 @@ export async function remove(id: string) {
     return { ok: true };
 }
 
-export function shapeMedia(m: Awaited<ReturnType<typeof list>>[number]) {
-    const variants = (m.variants as { key: string; width: number | null; height: number | null }[]) ?? [];
+export function shapeMedia(m: RawMedia) {
+    const variants =
+        (m.variants as { key: string; width: number | null; height: number | null }[]) ?? [];
     return {
         id: m.id,
         kind: m.kind,

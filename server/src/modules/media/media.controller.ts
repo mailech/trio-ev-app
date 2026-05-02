@@ -4,7 +4,7 @@ import { badRequest } from '@/utils/http-error';
 
 export const uploadHandler: RequestHandler = async (req, res, next) => {
     try {
-        if (!req.file) throw badRequest('No file uploaded');
+        if (!req.file) throw badRequest('No file uploaded (field name: "file")');
         const created = await mediaService.uploadImage({
             buffer: req.file.buffer,
             mimetype: req.file.mimetype,
@@ -30,7 +30,7 @@ export const listHandler: RequestHandler = async (req, res, next) => {
 
 export const deleteHandler: RequestHandler<{ id: string }> = async (req, res, next) => {
     try {
-        res.json(await mediaService.remove(req.params.id));
+        res.json(await mediaService.remove(String(req.params.id)));
     } catch (err) {
         next(err);
     }
