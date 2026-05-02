@@ -1,8 +1,16 @@
-import { Outlet } from 'react-router-dom';
+import { useEffect } from 'react';
+import { Outlet, useLocation } from 'react-router-dom';
 import { Navbar } from '../components/Navbar';
 import { Footer } from '../components/Footer';
+import { trackPageView } from '@/lib/track';
 
 export function RootLayout() {
+    const location = useLocation();
+
+    useEffect(() => {
+        trackPageView(location.pathname + location.search);
+    }, [location.pathname, location.search]);
+
     return (
         <div className="min-h-full flex flex-col relative bg-background">
             <Navbar />

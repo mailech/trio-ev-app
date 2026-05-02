@@ -8,20 +8,19 @@ import { usersAdminRouter } from '@/modules/users/users.routes';
 import { dashboardAdminRouter } from '@/modules/dashboard/dashboard.routes';
 import { mediaAdminRouter } from '@/modules/media/media.routes';
 import { blogAdminRouter, blogPublicRouter } from '@/modules/blog/blog.routes';
+import { trackRouter } from '@/modules/track/track.routes';
 import { requireAuth } from '@/middleware/auth';
 import { requireAdmin } from '@/middleware/requireAdmin';
 import { requireCsrf } from '@/middleware/csrf';
-import { trackVisit } from '@/middleware/trackVisit';
 
 export const apiRouter: Router = Router();
-
-apiRouter.use(trackVisit);
 
 apiRouter.get('/health', (_req, res) => {
     res.json({ status: 'ok', uptime: process.uptime() });
 });
 
 apiRouter.use('/auth', authRouter);
+apiRouter.use('/track', trackRouter);
 apiRouter.use('/inquiries', inquiryPublicRouter);
 apiRouter.use('/blog', blogPublicRouter);
 
