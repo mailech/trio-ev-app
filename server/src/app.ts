@@ -7,7 +7,6 @@ import { env } from '@/config/env';
 import { logger } from '@/lib/logger';
 import { apiRouter } from '@/routes';
 import { errorHandler, notFoundHandler } from '@/middleware/error';
-import { storageRoot } from '@/lib/storage';
 
 export function createApp() {
     const app = express();
@@ -28,15 +27,6 @@ export function createApp() {
     app.get('/health', (_req, res) => {
         res.json({ status: 'ok', uptime: process.uptime() });
     });
-
-    app.use(
-        '/uploads',
-        express.static(storageRoot(), {
-            maxAge: '30d',
-            immutable: true,
-            fallthrough: false,
-        }),
-    );
 
     app.use('/api', apiRouter);
 
